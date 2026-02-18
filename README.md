@@ -11,7 +11,7 @@ Before building this tool, I checked maintained options like Plugin Check and ot
 
 Freshness baseline used for this scanner:
 - WordPress stable: `6.9.1` (released February 3, 2026)
-- WordPress `7.0` status: still tentative for 2026 (not released yet)
+- WordPress `7.0` status: scheduled for April 9, 2026 (not released yet)
 
 ## Usage
 
