@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""WordPress 7.0 compatibility scanner for deprecations and iframe readiness."""
+"""WordPress 7.0 compatibility scanner for deprecated hooks and fatal risks."""
 
 from __future__ import annotations
 
@@ -41,7 +41,7 @@ class Finding:
 RULES = [
     Rule(
         rule_id="WP-DEP-001",
-        category="deprecation",
+        category="deprecated-hook",
         severity="medium",
         pattern=r"""add_filter\(\s*['"]allowed_block_types['"]""",
         message="Legacy allowed_block_types filter detected.",
@@ -49,51 +49,43 @@ RULES = [
     ),
     Rule(
         rule_id="WP-DEP-002",
-        category="deprecation",
+        category="deprecated-hook",
         severity="medium",
         pattern=r"""add_filter\(\s*['"]block_editor_settings['"]""",
         message="Legacy block_editor_settings filter detected.",
         replacement="Use block_editor_settings_all and inspect WP_Block_Editor_Context.",
     ),
     Rule(
-        rule_id="WP-DEP-003",
-        category="deprecation",
-        severity="low",
-        pattern=r"""\bwp\.editor\.initialize\s*\(""",
-        message="Classic wp.editor.initialize usage found.",
-        replacement="Prefer block APIs in @wordpress/block-editor and @wordpress/data.",
-    ),
-    Rule(
-        rule_id="WP-DEP-004",
-        category="deprecation",
-        severity="low",
-        pattern=r"""\btinyMCEPreInit\b""",
-        message="TinyMCE global usage detected.",
-        replacement="Migrate editor integrations to block editor APIs where possible.",
-    ),
-    Rule(
-        rule_id="WP-IFRAME-001",
-        category="iframe-readiness",
+        rule_id="WP-FATAL-001",
+        category="fatal-risk",
         severity="high",
-        pattern=r"""\bwindow\.(?:parent|top)\.document\b|\btop\.document\b""",
-        message="Cross-frame DOM access will break when editor runs in isolated iframe.",
-        replacement="Use editor data stores/events or postMessage contracts instead of parent/top DOM.",
+        pattern=r"""\bcreate_function\s*\(""",
+        message="create_function() was removed in PHP 8 and will fatal.",
+        replacement="Replace with anonymous functions or named callbacks.",
     ),
     Rule(
-        rule_id="WP-IFRAME-002",
-        category="iframe-readiness",
-        severity="medium",
-        pattern=r"""['"](?:#poststuff|#titlediv|#editor)['"]|\.edit-post-layout__content""",
-        message="Hardcoded post editor DOM selectors found.",
-        replacement="Scope UI to registered block controls or plugin sidebar slots.",
+        rule_id="WP-FATAL-002",
+        category="fatal-risk",
+        severity="high",
+        pattern=r"""\b(?:mysql_query|mysql_connect|mysql_pconnect|mysql_select_db|mysql_real_escape_string)\s*\(""",
+        message="Legacy mysql_* API usage can fatal on modern PHP runtimes.",
+        replacement="Use $wpdb, wpdb::prepare(), or mysqli/PDO-backed abstractions.",
     ),
     Rule(
-        rule_id="WP-IFRAME-003",
-        category="iframe-readiness",
-        severity="medium",
-        pattern=r"""add_action\(\s*['"]admin_head-post(?:-new)?\.php['"]""",
-        message="Direct post editor head injection detected.",
-        replacement="Enqueue assets with block editor hooks and target supported extension points.",
+        rule_id="WP-FATAL-003",
+        category="fatal-risk",
+        severity="high",
+        pattern=r"""\beach\s*\(""",
+        message="each() was removed in PHP 8 and can fatal.",
+        replacement="Use foreach or key()/current()/next() iteration patterns.",
+    ),
+    Rule(
+        rule_id="WP-FATAL-004",
+        category="fatal-risk",
+        severity="high",
+        pattern=r"""\bcall_user_method(?:_array)?\s*\(""",
+        message="call_user_method*() was removed in PHP 7 and can fatal.",
+        replacement="Use call_user_func() or direct method calls.",
     ),
 ]
 
@@ -182,7 +174,7 @@ def should_fail(findings: list[Finding], fail_on: str) -> bool:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Scan WordPress plugin/theme code for deprecations and iframe readiness risks."
+        description="Scan WordPress plugin/theme code for deprecated hooks and fatal-risk patterns."
     )
     parser.add_argument("path", help="Path to a plugin or theme directory")
     parser.add_argument(

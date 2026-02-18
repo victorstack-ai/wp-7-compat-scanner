@@ -12,7 +12,7 @@ FIXTURES = Path(__file__).resolve().parent / "fixtures" / "sample-plugin"
 
 
 class ScannerCliTests(unittest.TestCase):
-    def test_json_output_contains_deprecation_and_iframe_findings(self):
+    def test_json_output_contains_deprecated_hook_and_fatal_risk_findings(self):
         result = subprocess.run(
             [sys.executable, str(SCANNER), str(FIXTURES), "--format", "json", "--fail-on", "low"],
             check=False,
@@ -23,14 +23,14 @@ class ScannerCliTests(unittest.TestCase):
         data = json.loads(result.stdout)
         self.assertGreaterEqual(data["summary"]["total"], 3)
         categories = {item["category"] for item in data["findings"]}
-        self.assertIn("deprecation", categories)
-        self.assertIn("iframe-readiness", categories)
+        self.assertIn("deprecated-hook", categories)
+        self.assertIn("fatal-risk", categories)
 
     def test_exit_code_respects_fail_on_threshold(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = Path(tmp) / "plugin.php"
             path.write_text(
-                "window.parent.document.querySelector('#poststuff');\n",
+                "<?php\ncreate_function('$v', 'return $v;');\n",
                 encoding="utf-8",
             )
 
