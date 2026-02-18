@@ -12,7 +12,7 @@ FIXTURES = Path(__file__).resolve().parent / "fixtures" / "sample-plugin"
 
 
 class ScannerCliTests(unittest.TestCase):
-    def test_json_output_contains_deprecated_hook_and_fatal_risk_findings(self):
+    def test_json_output_contains_deprecated_api_hook_and_fatal_risk_findings(self):
         result = subprocess.run(
             [sys.executable, str(SCANNER), str(FIXTURES), "--format", "json", "--fail-on", "low"],
             check=False,
@@ -21,8 +21,9 @@ class ScannerCliTests(unittest.TestCase):
         )
         self.assertEqual(result.returncode, 1)
         data = json.loads(result.stdout)
-        self.assertGreaterEqual(data["summary"]["total"], 3)
+        self.assertGreaterEqual(data["summary"]["total"], 5)
         categories = {item["category"] for item in data["findings"]}
+        self.assertIn("deprecated-api", categories)
         self.assertIn("deprecated-hook", categories)
         self.assertIn("fatal-risk", categories)
 

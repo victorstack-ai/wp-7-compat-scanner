@@ -56,6 +56,22 @@ RULES = [
         replacement="Use block_editor_settings_all and inspect WP_Block_Editor_Context.",
     ),
     Rule(
+        rule_id="WP-API-001",
+        category="deprecated-api",
+        severity="medium",
+        pattern=r"""\bget_page_by_title\s*\(""",
+        message="Deprecated get_page_by_title() usage detected.",
+        replacement="Use WP_Query with an explicit post type and title-aware query constraints.",
+    ),
+    Rule(
+        rule_id="WP-API-002",
+        category="deprecated-api",
+        severity="medium",
+        pattern=r"""\bwp_make_content_images_responsive\s*\(""",
+        message="Deprecated wp_make_content_images_responsive() usage detected.",
+        replacement="Use wp_filter_content_tags() for responsive content media processing.",
+    ),
+    Rule(
         rule_id="WP-FATAL-001",
         category="fatal-risk",
         severity="high",

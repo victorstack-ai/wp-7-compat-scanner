@@ -1,6 +1,7 @@
 # wp-7-compat-scanner
 
 CLI scanner for WordPress plugin/theme code that flags:
+- deprecated WordPress APIs
 - deprecated WordPress hooks
 - plugin/theme fatal-risk patterns that can crash on modern PHP runtimes
 
@@ -28,6 +29,8 @@ Exit codes:
 
 | Rule ID | Category | Severity | Detects | Migration guidance |
 |---|---|---|---|---|
+| `WP-API-001` | deprecated-api | medium | `get_page_by_title()` | Use `WP_Query` with explicit title constraints |
+| `WP-API-002` | deprecated-api | medium | `wp_make_content_images_responsive()` | Use `wp_filter_content_tags()` |
 | `WP-DEP-001` | deprecated-hook | medium | `allowed_block_types` filter | Use `allowed_block_types_all` with context |
 | `WP-DEP-002` | deprecated-hook | medium | `block_editor_settings` filter | Use `block_editor_settings_all` and context |
 | `WP-FATAL-001` | fatal-risk | high | `create_function()` | Replace with closures or named callbacks |
